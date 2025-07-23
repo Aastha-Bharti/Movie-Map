@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import heroImg from './assets/hero-img.png'
 import Search from './components/Search.jsx'
-import Spinner from './components/Spinner.jsx'
 import MovieCard from './components/MovieCard.jsx'
-import { useDebounce } from 'react-use'
 import { getTrendingMovies, updateSearchCount } from './appwrite.js'
+import { useDebounce } from 'use-debounce'
+import SkeletonCard from './components/SkeletonCard.jsx'
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY
 
@@ -24,11 +24,10 @@ const App = () => {
   const [errorMessage,setErrorMessage] = useState('')
   const [movieList,setMovieList]= useState([])
   const [isLoading, setisLoading] = useState(false)
-  const [debouncedSearchTerm,setDebouncedSearchTerm] = useState('')
   const [trendingMovies, setTrendingMovies] = useState('')
 
-  useDebounce( ()=> setDebouncedSearchTerm(searchTerm),500,[searchTerm])
-
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 500)
+  
   const fetchMovies = async(query = '') => {
     setisLoading(true)
     setErrorMessage('')
@@ -76,23 +75,29 @@ const App = () => {
   }
 
   useEffect(() => {
-    fetchMovies(debouncedSearchTerm)
+    if (debouncedSearchTerm.trim() !== '') {
+      fetchMovies(debouncedSearchTerm)
+    }
   }, [debouncedSearchTerm])
 
-  useEffect( () => {
-    loadTrendingMovies()
-  },[])
+  useEffect(() => {
+    fetchMovies()         // Only once, for popular movies
+    loadTrendingMovies()  // Only once, for trending
+  }, [])
   
   return (
     <main>
       <div className="pattern" />
      
       <div className="wrapper">
-        <header>
-          <img src={heroImg}></img>
-          <h1>Find <span className='text-gradient'>Movies</span> You'll Enjoy Without The Hassle</h1>
-          <Search searchTerm= {searchTerm} setSearchTerm= {setSearchTerm}/>
-        </header>
+
+        <header className="flex flex-col items-center text-center mt-[-3rem] sm:mt-[-5rem]">
+          <img src={heroImg} alt="hero" className="w-[220px] sm:w-[300px]" />
+          <h1 className="mt-4 text-3xl sm:text-4xl font-bold text-white leading-tight">
+            Find <span className='text-gradient'>Movies</span> You'll Enjoy <br /> Without The Hassle
+          </h1>
+          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          </header>
 
         {trendingMovies.length > 0 && (
           <section className='trending'>
@@ -111,20 +116,19 @@ const App = () => {
         
         <section className='all-movies'>
           <h2>All Movies</h2>
-          {
-            isLoading ? (
-              <Spinner />
-            ) : errorMessage ? (
-              <p className='text-red-500'>{errorMessage}</p>
-            ) : (
-              <ul>
-                {movieList.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie}/>
-                ))}
-              </ul>
-            )
-          }
-
+          {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, idx) => (
+          <SkeletonCard key={idx} />
+            ))}
+          </div>
+          ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {movieList.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+        )}
         </section>
       
       

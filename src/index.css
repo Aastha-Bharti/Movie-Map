@@ -3,7 +3,7 @@
 
 @import "tailwindcss";
 
-@theme {
+@theme{
   --color-primary: #030014;
 
   --color-light-100: #cecefb;
@@ -12,12 +12,13 @@
   --color-gray-100: #9ca4ab;
 
   --color-dark-100: #0f0d23;
+  --color-dark-300: #2a2a2a;
 
   --font-dm-sans: DM Sans, sans-serif;
 
   --breakpoint-xs: 480px;
 
-  --background-image-hero-pattern: url("/hero-bg.png");
+  --background-image-hero-pattern: url("/BG.png");
 }
 
 @layer base {
@@ -102,7 +103,8 @@
   }
 
   .movie-card {
-    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
+    @apply bg-dark-100 p-4 rounded-2xl shadow-md shadow-light-100/10 transition-transform duration-300 hover:scale-[1.02] hover:shadow-light-100/20;
+  }
 
     & img {
       @apply rounded-lg h-auto w-full;
@@ -140,7 +142,7 @@
       @apply text-gray-100 font-medium text-base;
     }
   }
-}
+
 
 @utility text-gradient {
   @apply bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] bg-clip-text text-transparent;
@@ -159,12 +161,4 @@
   &::-webkit-scrollbar {
     display: none;
   }
-}
-
-body {
-  background: url('/BG.png') no-repeat center center fixed;
-  background-size: cover;
-  margin: 0;
-  padding: 0;
-  transition: background-image 0.4s ease-in-out;
 }
